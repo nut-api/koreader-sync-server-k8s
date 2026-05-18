@@ -6,9 +6,10 @@ image:
 service:
   type: ClusterIP
   port: 17200
+enableUserRegistration: false
 virtualService:
   enabled: true
-  host: kosync.vongjon.com
+  host: kosync.example.com
   gateway: istio-system/gateway
   # If you manage the Gateway separately, set gateway to the name.
   # Set to "" to use mesh-internal routing only.
