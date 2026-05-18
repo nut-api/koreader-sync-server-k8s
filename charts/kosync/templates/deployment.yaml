@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kosync.fullname" . }}
+  labels:
+    {{- include "kosync.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "kosync.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "kosync.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: kosync
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 17200
+              protocol: TCP
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+          - name: ENABLE_USER_REGISTRATION
+            value: "true"
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: app-logs
+              mountPath: /app/koreader-sync-server/logs
+            - name: redis-logs
+              mountPath: /var/log/redis
+            - name: redis-data
+              mountPath: /var/lib/redis
+          {{- end }}
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: app-logs
+          persistentVolumeClaim:
+            claimName: {{ include "kosync.fullname" . }}-app-logs
+        - name: redis-logs
+          persistentVolumeClaim:
+            claimName: {{ include "kosync.fullname" . }}-redis-logs
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: {{ include "kosync.fullname" . }}-redis-data
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

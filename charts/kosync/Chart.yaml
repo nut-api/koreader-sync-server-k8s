@@ -1,0 +1,6 @@
+apiVersion: v2
+name: kosync
+description: KOReader sync server with bundled Redis
+type: application
+version: 0.1.0
+appVersion: "latest"

@@ -1,0 +1,24 @@
+{{- if .Values.virtualService.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ include "kosync.fullname" . }}
+  labels:
+    {{- include "kosync.labels" . | nindent 4 }}
+spec:
+  hosts:
+    - {{ .Values.virtualService.host | quote }}
+  {{- if .Values.virtualService.gateway }}
+  gateways:
+    - {{ .Values.virtualService.gateway }}
+  {{- end }}
+  http:
+    - match:
+        - uri:
+            prefix: /
+      route:
+        - destination:
+            host: {{ include "kosync.fullname" . }}
+            port:
+              number: {{ .Values.service.port }}
+{{- end }}

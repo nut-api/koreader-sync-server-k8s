@@ -1,0 +1,33 @@
+replicaCount: 1
+image:
+  repository: koreader/kosync
+  tag: latest
+  pullPolicy: IfNotPresent
+service:
+  type: ClusterIP
+  port: 17200
+virtualService:
+  enabled: true
+  host: kosync.vongjon.com
+  gateway: istio-system/gateway
+  # If you manage the Gateway separately, set gateway to the name.
+  # Set to "" to use mesh-internal routing only.
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  redis:
+    data:
+      size: 1Gi
+    logs:
+      size: 500Mi
+  app:
+    logs:
+      size: 500Mi
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+podAnnotations: {}
+podSecurityContext: {}
+securityContext: {}

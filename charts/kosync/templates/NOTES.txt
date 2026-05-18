@@ -1,0 +1,20 @@
+KOReader Sync Server deployed.
+
+Service: {{ include "kosync.fullname" . }}:{{ .Values.service.port }}
+
+{{- if .Values.virtualService.enabled }}
+VirtualService host: {{ .Values.virtualService.host }}
+{{- else }}
+VirtualService disabled. Enable with:
+  --set virtualService.enabled=true \
+  --set virtualService.host=<your-host> \
+  --set virtualService.gateway=<namespace/gateway-name>
+{{- end }}
+
+{{- if not .Values.persistence.enabled }}
+WARNING: Persistence disabled. Redis data will be lost on pod restart.
+{{- end }}
+
+Test connectivity:
+  kubectl port-forward svc/{{ include "kosync.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+  curl http://localhost:{{ .Values.service.port }}/healthcheck
